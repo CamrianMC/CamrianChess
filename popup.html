@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Chess.com Analyzer</title>
+  <style>
+    :root {
+      --glass-bg: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.05);
+      --accent-color: #94a3b8;
+      /* Soft Slate Blue-Gray */
+      --accent-active: #f8fafc;
+      /* Polished Silver */
+      --text-main: #f1f5f9;
+      --text-dim: #94a3b8;
+      --bg-color: #0f172a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 320px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0d1117;
+      color: var(--text-main);
+      padding: 16px;
+      overflow: hidden;
+      /* Sober background without heavy neon gradients */
+      background: #0f172a;
+      background: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
+    }
+
+    /* Container for the content */
+    .main-content {
+      padding: 0;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    .icon {
+      font-size: 20px;
+    }
+
+    /* Minimal Toggle Switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: .3s;
+      border-radius: 24px;
+      border: 1px solid var(--glass-border);
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked+.slider {
+      background-color: var(--accent-color);
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(20px);
+    }
+
+    .setting-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .setting-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .setting-card label {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+
+    .setting-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .depth-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent-active);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      appearance: none;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      background: white;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    /* Custom Checkbox */
+    .checkbox-container {
+      display: block;
+      position: relative;
+      cursor: pointer;
+      font-size: 22px;
+      user-select: none;
+    }
+
+    .checkbox-container input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
+
+    .checkmark {
+      position: relative;
+      display: block;
+      height: 20px;
+      width: 20px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 6px;
+    }
+
+    .checkbox-container input:checked~.checkmark {
+      background-color: var(--accent-color);
+    }
+
+    .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+      left: 6px;
+      top: 2px;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .checkbox-container input:checked~.checkmark:after {
+      display: block;
+    }
+
+    /* Analysis Section */
+    .analysis {
+      margin-top: 8px;
+    }
+
+    .analysis-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 0 4px;
+    }
+
+    .analysis-header span {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .analysis-depth {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--accent-active) !important;
+      padding: 2px 8px;
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      font-size: 10px !important;
+    }
+
+    .move-item {
+      display: grid;
+      grid-template-columns: 24px 60px 1fr 50px;
+      align-items: center;
+      padding: 8px 4px;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      transition: all 0.2s ease;
+      gap: 12px;
+    }
+
+    .move-item:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .move-rank {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .move-name {
+      font-family: 'JetBrains Mono', 'Consolas', monospace;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-main);
+    }
+
+    /* Evaluation Bar Styles */
+    .move-bar-container {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .move-bar {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .best .move-bar {
+      background: #65a30d;
+    }
+
+    .second .move-bar {
+      background: #d97706;
+    }
+
+    .third .move-bar {
+      background: #ca8a04;
+    }
+
+    .move-score {
+      font-weight: 700;
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .engine-select {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      padding: 8px;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .best {
+      border-left: 3px solid #65a30d;
+      /* Muted Green */
+    }
+
+    .best .move-score {
+      color: #a3e635;
+    }
+
+    .second {
+      border-left: 3px solid #d97706;
+      /* Muted Orange */
+    }
+
+    .second .move-score {
+      color: #fbbf24;
+    }
+
+    .third {
+      border-left: 3px solid #ca8a04;
+      /* Muted Gold */
+    }
+
+    .third .move-score {
+      color: #fde047;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-dim);
+    }
+
+    .empty-icon {
+      font-size: 24px;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    .empty-text {
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="main-content">
+    <div class="header">
+      <div class="header-left">
+        <span class="icon">♟</span>
+        <h1>Chess.com Analyzer</h1>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="enabledCheckbox" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-card">
+        <label>Depth</label>
+        <div class="setting-content">
+          <input type="range" id="depthSlider" min="10" max="25" value="15">
+          <span class="depth-value" id="depthValue">15</span>
+        </div>
+      </div>
+      <div class="setting-card">
+        <label>Lines</label>
+        <div class="setting-content">
+          <input type="range" id="multipvSlider" min="1" max="3" value="3">
+          <span class="depth-value" id="multipvValue">3</span>
+        </div>
+      </div>
+      <div class="setting-card" style="grid-column: 1 / -1;">
+        <label>Engine</label>
+        <div class="setting-content">
+          <select id="engineSelect" class="engine-select">
+            <option value="stockfish">Stockfish (in extension)</option>
+            <option value="maia3">Maia3 (localhost bridge)</option>
+          </select>
+        </div>
+      </div>
+      <div class="setting-card" style="grid-column: 1 / -1;">
+        <label>Arrows</label>
+        <div class="setting-content" style="justify-content: flex-start; padding-top: 4px;">
+          <label class="checkbox-container">
+            <input type="checkbox" id="arrowsCheckbox" checked>
+            <span class="checkmark"></span>
+          </label>
+          <span style="font-size: 12px; margin-left: 8px;">Enabled</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="analysis" id="analysisContainer">
+      <div class="analysis-header">
+        <span>Live Analysis</span>
+        <span class="analysis-depth" id="currentDepth">Depth: 0</span>
+      </div>
+      <div id="movesList">
+        <div class="empty-state">
+          <div class="empty-icon">🔍</div>
+          <p class="empty-text">Start analysis on Chess.com</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>

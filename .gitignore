@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.log
+*.tmp
+
+# Build artifacts
+dist/
+*.zip
+
+# Tooling
+.serena/
+
+# Generated store-asset pages
+store-assets/src/pages/

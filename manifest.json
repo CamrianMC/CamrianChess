@@ -1,0 +1,61 @@
+{
+  "manifest_version": 3,
+  "name": "Chess.com Analyzer",
+  "version": "1.2.1",
+  "description": "Analyze Chess.com positions with Stockfish - Shows the 3 best moves",
+  "icons": {
+    "16": "images/icon16.png",
+    "32": "images/icon32.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  },
+  "permissions": [
+    "storage",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "https://www.chess.com/*",
+    "http://127.0.0.1:8765/*",
+    "http://localhost:8765/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/icon16.png",
+      "32": "images/icon32.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.chess.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "stockfish.js",
+        "offscreen.html",
+        "stockfish.wasm",
+        "stockfish.loader.js",
+        "stockfish.asm.js"
+      ],
+      "matches": [
+        "https://www.chess.com/*"
+      ]
+    }
+  ]
+}
