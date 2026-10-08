@@ -12,6 +12,8 @@ from __future__ import annotations
 import argparse
 import atexit
 import json
+import shutil
+import sys
 import threading
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -27,15 +29,23 @@ class MaiaBridge:
     def __init__(self, model: str) -> None:
         self.model = model
         self._lock = threading.Lock()
-        self._engine = chess.engine.SimpleEngine.popen_uci(
-            [
-                "maia3-uci",
+        launcher = shutil.which("maia3-uci")
+        command = (
+            [launcher, "--model", model, "--use-uci-history", "--temperature", "0"]
+            if launcher
+            else [
+                sys.executable,
+                "-m",
+                "maia3.uci",
                 "--model",
                 model,
                 "--use-uci-history",
                 "--temperature",
                 "0",
             ]
+        )
+        self._engine = chess.engine.SimpleEngine.popen_uci(
+            command
         )
 
     def close(self) -> None:
@@ -54,7 +64,6 @@ class MaiaBridge:
 
             # Maia3 itself does not iterate search depth like Stockfish, but we
             # keep a depth-compatible UI field for the extension.
-            self._engine.configure({"MultiPV": lines})
             infos = self._engine.analyse(
                 board,
                 chess.engine.Limit(nodes=1),
@@ -91,6 +100,12 @@ class MaiaBridge:
                     "pv": " ".join(move.uci() for move in pv[:5]),
                 }
             )
+
+        top_move = moves[0]["move"] if moves else "(no-move)"
+        print(
+            f"[maia3-bridge] fen={fen} recommended={top_move} multipv={lines}",
+            flush=True,
+        )
 
         return {
             "engine": "maia3",
