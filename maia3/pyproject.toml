@@ -13,6 +13,7 @@ authors = [
   { name = "UofT CSSLab" }
 ]
 dependencies = [
+  "aiohttp>=3.9",
   "huggingface-hub>=0.23",
   "numpy",
   "python-chess",
@@ -31,6 +32,10 @@ maia3-3m-ablation = "maia3.presets:main_3m_ablation"
 maia3-5m = "maia3.presets:main_5m"
 maia3-23m = "maia3.presets:main_23m"
 maia3-79m = "maia3.presets:main_79m"
+maia3-live-view = "maia3.live_view_server:main"
 
 [tool.setuptools.packages.find]
 include = ["maia3*"]
+
+[tool.setuptools.package-data]
+maia3 = ["viewer_static/*.html", "viewer_static/*.js"]
