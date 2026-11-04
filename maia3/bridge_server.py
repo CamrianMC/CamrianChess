@@ -1,7 +1,7 @@
 """Convenience launcher for the Maia3 localhost bridge.
 
 Usage:
-    python bridge_server.py --model maia3-5m
+    python bridge_server.py --model maia3-5m --elo 1400
 """
 
 from maia3.bridge_server import main

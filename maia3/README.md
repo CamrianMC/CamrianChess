@@ -209,6 +209,31 @@ maia3-uci --model maia3-5m --device cpu --no-use-amp
 By default, Maia3 only loads tensor state-dict checkpoints. If you need to load
 an old pickled checkpoint from a source you trust, add `--trust-checkpoint`.
 
+## Live LAN Viewer (WebSocket + Chessboard.js)
+
+This repo includes a lightweight live viewer server that serves a board page and
+streams Maia recommendations over WebSocket.
+
+Start the viewer:
+
+```bash
+python live_view_server.py --host 0.0.0.0 --port 8780
+```
+
+Or if installed as a package:
+
+```bash
+maia3-live-view --host 0.0.0.0 --port 8780
+```
+
+Then run the bridge with publish enabled:
+
+```bash
+python bridge_server.py --model maia3-5m --elo 1400 --broadcast-url http://127.0.0.1:8780/publish
+```
+
+Open `http://<your-lan-ip>:8780/` on a phone connected to the same network.
+
 ## Example via python-chess
 
 ```python

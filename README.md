@@ -141,12 +141,35 @@ python -m pip install .
 3. Start the bridge server:
 
 ```bash
-python bridge_server.py --model maia3-5m
+python bridge_server.py --model maia3-5m --elo 1400
 ```
 
 4. In the extension popup, set **Engine** to **Maia3 (localhost bridge)**
 
 Default bridge endpoint is `http://127.0.0.1:8765/analyze`.
+Bridge Elo can be set at launch with `--elo`; valid range is `0-5000`.
+
+## Maia3 Live Viewer (WebSocket)
+
+You can mirror Maia3's recommended moves to a phone/browser on your local network.
+
+1. Start the live viewer server (serves `index.html`, `board.js`, `arrows.js`):
+
+```bash
+python live_view_server.py --host 0.0.0.0 --port 8780
+```
+
+2. Start the Maia bridge and enable broadcasting:
+
+```bash
+python bridge_server.py --model maia3-5m --elo 1400 --broadcast-url http://127.0.0.1:8780/publish
+```
+
+3. On your phone (same network), open:
+
+```text
+http://<your-computer-lan-ip>:8780/
+```
 
 ## Settings
 

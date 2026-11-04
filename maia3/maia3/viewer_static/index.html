@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Maia3 Live Viewer</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chessboardjs@1.0.0/www/css/chessboard-1.0.0.min.css">
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+    body {
+      margin: 0;
+      background: #0f1115;
+      color: #f5f6f7;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    main {
+      width: min(96vw, 620px);
+      display: grid;
+      gap: 14px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+    .meta {
+      margin: 0;
+      color: #b6bdc9;
+      font-size: 0.95rem;
+    }
+    #connection-status.online {
+      color: #66d17a;
+    }
+    #connection-status.offline {
+      color: #ff8a80;
+    }
+    #board-shell {
+      width: min(96vw, 560px);
+      aspect-ratio: 1 / 1;
+      position: relative;
+      margin: 0 auto;
+    }
+    #board {
+      width: 100%;
+      height: 100%;
+    }
+    .panel {
+      background: #151a23;
+      border: 1px solid #273041;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    #move-lines {
+      margin: 8px 0 0;
+      padding-left: 22px;
+    }
+    #move-lines li {
+      margin: 4px 0;
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Maia3 Live Viewer</h1>
+    <p id="connection-status" class="meta offline">Connecting to live feed…</p>
+    <div id="board-shell">
+      <div id="board"></div>
+    </div>
+    <section class="panel">
+      <p class="meta">Recommended move: <strong id="top-move">—</strong></p>
+      <p class="meta" id="engine-depth">Waiting for Maia analysis…</p>
+      <ol id="move-lines"></ol>
+      <p class="meta" id="last-update">No updates yet.</p>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chessboardjs@1.0.0/www/js/chessboard-1.0.0.min.js"></script>
+  <script src="/arrows.js"></script>
+  <script src="/board.js"></script>
+</body>
+</html>
